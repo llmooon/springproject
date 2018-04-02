@@ -87,6 +87,4 @@ public class SearchBoardController {
 		logger.info(rttr.toString());
 		return "redirect:/sboard/list";
 	}
-
-	
 }
