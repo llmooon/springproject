@@ -36,6 +36,12 @@ public class SearchBoardController {
 		model.addAttribute("pageMaker",pageMaker);	
 	}
 	
+	@RequestMapping(value="/temp",method=RequestMethod.GET)
+	public void listPage() throws Exception{
+		logger.info("temp");
+
+	}
+	
 	@RequestMapping(value="/readPage", method=RequestMethod.GET)
 	public void read(@RequestParam("bno")int bno, @ModelAttribute("cri") SearchCriteria cri, Model model) throws Exception{
 		model.addAttribute(service.read(bno));
