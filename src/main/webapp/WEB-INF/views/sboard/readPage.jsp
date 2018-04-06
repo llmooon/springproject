@@ -4,9 +4,8 @@
 	<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 	<%@ page session="false" %>
 <%@include file="../include/header.jsp"%>
-<script language="JavaScript" type="text/javascript" src="resources/plugins/jquery/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.1/handlebars.js"></script>
+<!-- <script language="JavaScript" type="text/javascript" src="resources/plugins/jquery/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 <section class="content">
 	<div class="row">
 		<!-- left column -->
@@ -70,7 +69,7 @@
 					<input class="form-control" type="text" placeholder = "Reply Text" id="newReplyText">
 				</div>
 				<div class="box-footer">
-					<button type="submit" class="btn btn-primary" id="replyAddBtn">ADD Reply </button>
+					<button type="submit" class="btn btn-add" id="replyAddBtn">ADD Reply </button>
 				</div>
 			</div>
 			<ul class="timeline">
@@ -88,23 +87,43 @@
 	</ul>
 	
 	<script id="template" type="text/x-handlebars-template">
-	{{#each .}}
-		<li class="replyLi" data-rno={{rno}}>
-		<i class="fa fa-comments bg-blue"></i>
-		 <div class="timeline-item" >
- 			<span class="time">
+{{#each .}}
+   <li class="replyLi" data-rno={{rno}}>
+      <i class="fa fa-comments bg-blue"></i>
+         <div class="timeline-item">
+            <span class="time">
                <i class="fa fa-clock-o"></i>{{prettifyDate regdate}}
             </span>
-  		<h3 class="timeline-header"><strong>{{rno}}</strong> -{{replyer}}</h3>
- 	 	<div class="timeline-body">{{replytext}} </div>
-    	<div class="timeline-footer">
-	    <a class="btn btn-primary btn-xs" 
-	    data-toggle="modal" data-target="#modifyModal">Modify</a>
-    </div>
-  </div>			
-</li>
-	{{/each}}
+
+            <h3 class="timeline-header"><strong>{{rno}}</strong> - {{replyer}}</h3>
+            <div class="timeline-body">{{replytext}}</div>
+            <div class="timeline-footer">
+               <a class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modifyModal">MODIFY</a>
+            </div>
+         </div>
+   </li>
+   {{/each}}
 	</script>
+	
+	<!-- MODAL -->
+	<div id="modifyModal" class="modal modal-primary fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" > &times;</button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body" data-rno>
+					<p> <input type="text" id="replytext" class="form-control"></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-btn-info" id="replyModBtn" >modify</button>
+					<button type="button" class="btn btn-btn-danger" id="replyDelBtn">Delete</button>
+					<button type="button" class="btn btn-btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div> 
 </section>	
 
 <script> 
@@ -125,6 +144,7 @@
          formObj.attr("action","/sboard/list");
          formObj.submit();
       });
+   
    });
 </script>
 
@@ -147,6 +167,90 @@
       getPage("/replies/"+bno+"/"+replyPage);
    });
    
+   $("#replyAddBtn").on("click", function(){
+		var replyerObj = $("#newReplyWriter")
+		var replytextObj = $("#newReplyText")
+		var replytextObj = $("#newReplyText");
+		var replyer = replyerObj.val();
+		var replytext = replytextObj.val();
+		
+		$.ajax({
+			type : 'post',
+			url : '/replies',
+			headers : {
+				"Content-Type" : "application/json",
+				"X-HTTP-Method-Override" : "POST"
+			},
+			dataType : 'text',
+			data : JSON.stringify({
+				bno : bno,
+				replyer : replyer,
+				replytext : replytext
+			}),
+			success : function(result){
+				if(result == 'SUCCESS'){
+					alert("등록 되었습니다.");
+					replyPage=1;
+					getPage("/replies/"+bno+"/"+replyPage);
+					replyerObj.val("");
+					replytextObj.val("");
+				}
+				
+			}
+		});
+	});
+   
+   $(".timeline").on("click",".replyLi",function(event){
+   	   var reply = $(this);
+   	   $("#replytext").val(reply.find('.timeline-body').text());
+   	   $(".modal-title").html(reply.attr("data-rno"));	   
+      });
+   
+   $("#replyDelBtn").on("click", function(){
+		var rno = $(".modal-title").html();
+		var replytext = $("#replytext").val();
+		$.ajax({
+			type : 'delete',
+			url : '/replies/'+rno,
+			headers : {
+				"Content-Type" : "application/json",
+				"X-HTTP-Method-Override" : "DELETE"
+			},
+			dataType : 'text',
+			success : function(result){
+				console.log("result : "+result);
+				if(result == 'SUCCESS'){
+					alert("삭제 되었습니다.");
+					//$("#modDiv").hide("slow");
+					getPage("/replies/"+bno+"/"+replyPage);
+				}	
+			}
+		});
+	});
+	
+	$("#replyModBtn").on("click", function(){
+		var rno = $(".modal-title").html();
+		var replytext = $("#replytext").val();
+		$.ajax({
+			type : 'put',
+			url : '/replies/'+rno,
+			headers : {
+				"Content-Type" : "application/json",
+				"X-HTTP-Method-Override" : "PUT"
+			},
+			dataType : 'text',
+			data : JSON.stringify({replytext : replytext}),
+			success : function(result){
+				if(result == 'SUCCESS'){
+					alert("수정 되었습니다.");
+					getPage("/replies/"+bno+"/"+replyPage);
+				}
+			}
+		});
+	});
+	
+ 
+      
    Handlebars.registerHelper("prettifyDate",function(timeValue){
 	    var dateObj = new Date(timeValue);
 	    var year = dateObj.getFullYear();
@@ -160,7 +264,7 @@
 	   $.getJSON(pageInfo, function(data){
 		   printData(data.list, $("#repliesDiv"),$('#template'));
 		   printPaging(data.pageMaker, $(".pagination"));
-		   //$("#modifyModal").modal('hide');
+		   $("#modifyModal").modal('hide');
 	   });
    }
 
@@ -190,3 +294,4 @@
 	</script>
 </body>
 </html>
+<%@include file="../include/footer.jsp"%>
