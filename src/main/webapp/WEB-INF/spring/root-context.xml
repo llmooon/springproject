@@ -37,8 +37,14 @@
 		<constructor-arg ref="sqlSessionFactory" name="sqlSessionFactory" />
 	</bean>
 	
+	<bean id = "transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
 	<context:component-scan base-package="org.zerock"/>
 	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
 	<aop:config></aop:config>
+	
+	<tx:annotation-driven />
 </beans>
 
