@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.domain.SearchCriteria;
@@ -15,15 +16,25 @@ public class BoardServiceImpl implements BoardService{
 
 	@Inject
 	private BoardDAO dao;
+	
+	@Transactional
 	@Override
 	public void regist(BoardVO board) throws Exception {
 		// TODO Auto-generated method stub
 		dao.create(board);
+		String[] files = board.getFiles();
+		if(files == null) {
+			return;
+		}
+		for(String fileName:files) {
+			dao.addAttach(fileName);
+		}
 	}
 
 	@Override
 	public BoardVO read(Integer bno) throws Exception {
 		// TODO Auto-generated method stub
+		dao.updateViewCnt(bno);
 		return dao.read(bno);
 	}
 

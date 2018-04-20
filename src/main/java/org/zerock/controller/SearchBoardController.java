@@ -21,6 +21,10 @@ import org.zerock.service.BoardService;
 
 public class SearchBoardController {
 	int cnt=0;
+	
+	
+	 
+	//String uploadPath= "C:\\Users\\AH\\Documents\\temp"; 
 	private static final Logger logger = LoggerFactory.getLogger(SearchBoardController.class);
 	
 	@Inject
@@ -93,4 +97,5 @@ public class SearchBoardController {
 		logger.info(rttr.toString());
 		return "redirect:/sboard/list";
 	}
+		
 }

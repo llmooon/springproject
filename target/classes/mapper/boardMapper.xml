@@ -13,7 +13,7 @@
 	 </insert>
 	
 	<select id="read" resultType="org.zerock.domain.BoardVO">
-		select bno, title, content, writer, regdate, viewcnt from tbl_board
+		select bno, title, content, writer, regdate, viewcnt, replycnt from tbl_board
 		where bno=#{bno}
 	</select>
 	
@@ -45,7 +45,7 @@
 	
 	<select id="listCriteria" resultType="BoardVO">
 		<![CDATA[
-		select bno, title, content, writer, regdate, viewcnt 
+		select bno, title, content, writer, regdate, viewcnt ,replycnt
 		from tbl_board
 		where bno > 0
 		order by bno desc, regdate desc
@@ -70,12 +70,25 @@
 		]]>
 	</select>
 	
+	<update id = "updateReplyCnt">
+		update tbl_board set replycnt = replycnt + #{amount} where bno=#{bno}
+	</update>
+	
 	<select id="listSearchCount" resultType="int">
 		<![CDATA[
 			select count(bno) from tbl_board where bno > 0 
 		]]>
-		
 	</select>
+	
+	<update id="updateViewCnt">
+		<![CDATA[
+			update tbl_board set viewcnt=viewcnt+1 where bno=#{bno}
+		]]>
+	</update>
+	
+	<insert id="addAttach">
+		insert into tbl_attach(fullName,bno) values (#{fullName},LAST_INSERT_ID())
+	</insert>
 	
 	<sql id="search">
 		<if test="searchType != null" > 
@@ -101,6 +114,6 @@
 		  </if>              
 		</if> 
 	</sql>
-
+	
 
 </mapper>
