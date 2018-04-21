@@ -19,9 +19,7 @@
       <span class="mailbox-attachment-icon has-img"><img src="{{imgsrc}}" alt = "Attachment"></span>
       <div class="mailbox-attachment-info">
          <a href = "{{getLink}}" class="mailbox-attachment-name">{{fileName}}</a>
-         <a href = "{{fullName}}" class="btn btn-default bnt-xs pull-right delbtn">
-         <i class="fa fa-fw fa-remove"> </i>
-         </a>
+         <div class="delbtn" data-src="{{fullName}}">X<div> 
       </div>
    </li>
 </script>
@@ -54,6 +52,22 @@
 	         }
 	      });
 	   });
+	   
+	   $(".uploadedList").on("click",".delbtn",function(event){
+       	console.log("click");
+		var that = $(this);
+       	$.ajax({
+       		url : "/deleteFile",
+       		type : "post",
+       		data : {fileName:$(this).attr("data-src")},
+       		dataType:"text",
+       		success:function(result){
+       			if(result=='deleted'){
+       				that.parent("div").parent("li").remove();
+       			}
+       		}
+       	});
+        });
 	   
 	   $("#registerForm").submit(function(event){
 	      event.preventDefault();
