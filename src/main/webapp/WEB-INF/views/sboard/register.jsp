@@ -19,7 +19,9 @@
       <span class="mailbox-attachment-icon has-img"><img src="{{imgsrc}}" alt = "Attachment"></span>
       <div class="mailbox-attachment-info">
          <a href = "{{getLink}}" class="mailbox-attachment-name">{{fileName}}</a>
-         <div class="delbtn" data-src="{{fullName}}">X<div> 
+         <div class="btn btn-default btn-xs pull-right delbtn" data-src="{{fullName}}">
+			<i class="fa fa-fw fa-remove"></i>
+		</div> 
       </div>
    </li>
 </script>
@@ -74,7 +76,7 @@
 	      var that = $(this);
 	      var str="";
 	      $(".uploadedList .delbtn").each(function(index){
-	         str += "<input type='hidden' name='files["+index+"]' value='"+$(this).attr("href")+"'> ";
+	         str += "<input type='hidden' name='files["+index+"]' value='"+$(this).attr("data-src")+"'> ";
 	      });
 	      that.append(str);
 	      that.get(0).submit();
