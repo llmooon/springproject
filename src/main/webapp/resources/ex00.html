@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script type="text/javascript" src="resources/plugins/jquery/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.1/handlebars.js"></script>
+	
+	<ul id="replies">
+	</ul>
+	<script id="template" type="text/x-handlebars-template">
+1
+		{{#each .}}
+		<li class="replyLi">
+			<div>{{rno}}<div>
+		</li>
+		{{/each}}
+	</script>
+	<script>
+		var source=$("#template").html();
+		var template = Handlebars.compile(source);
+		var data=[{rno : 1},{rno:2}];
+		$("#replies").html(template(data));
+	</script>
+</body>
+</html>
