@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="../include/header.jsp" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <style type="text/css">
    .popup { position : absoulute; }
    .back {
@@ -155,7 +155,6 @@
       
       $("#removeBtn").on("click",function(){
     	 console.log("click!");
-    	//var replyCnt = $("#replycntSmall").html();
  
     	if(${boardVO.replycnt}>0){
     		alert("댓글 있는 글 삭제 불가");
@@ -191,7 +190,9 @@
             <h3 class="timeline-header"><strong>{{rno}}</strong> - {{replyer}}</h3>
             <div class="timeline-body">{{replytext}}</div>
             <div class="timeline-footer">
-               <a class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modifyModal">MODIFY</a>
+               	{{#eqReplyer replyer}}	
+					<a class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modifyModal">MODIFY</a>
+				{{/eqReplyer}}
             </div>
          </div>
    </li>
@@ -207,6 +208,7 @@
    </li>
 </script>
 
+
 <script>
    Handlebars.registerHelper("prettifyDate", function(timeValue) {
       var dateObj = new Date(timeValue);
@@ -216,9 +218,21 @@
       return year + "/" + month + "/" +date;
    });
    
+   Handlebars.registerHelper("eqReplyer", function(replyer,block) {
+	      var accum='';
+	      if(replyer=='${login.uid}'){
+	    	  accum+=block.fn();
+	      }
+	      return accum;
+	   });
+   
    var bno = ${boardVO.bno};
    var replyPage = 1;
    
+   function goLogin(){
+	   self.location = "/user/login";
+	   
+   }
    function getPage(pageInfo) {
       $.getJSON(pageInfo, function(data) {
          printData(data.list, $("#repliesDiv"), $("#template"));
@@ -297,9 +311,11 @@
                </div>   
                
                <div class="box-footer">
-                  <button type="submit" class="btn btn-warning">MODIFY</button>
-                  <button type="submit" class="btn btn-danger" id="removeBtn" >REMOVE</button>
-                  <button type="submit" class="btn btn-primary">GO LIST</button>
+                  <c:if test="${login.uid==boardVO.writer}">
+	                  <button type="submit" class="btn btn-warning" id="modifyBtn">MODIFY</button>
+	                  <button type="submit" class="btn btn-danger" id="removeBtn" >REMOVE</button>
+                  </c:if>
+                  <button type="submit" class="btn btn-primary" id="goListBtn">GO LIST</button>
                </div>                              
             </div>
          </div>
@@ -313,18 +329,32 @@
                <h3 class="box-title">ADD NEW REPLY</h3>
             </div>
             
-            <div class="box-body">
-               <label for="exampleInputEmail1">Writer</label>
-               <input type="text" class="form-control" placeholder="USER ID" id="newReplyWriter">
-               
-               <label for="exampleInputEmail1">Reply Text</label>
-               <input type="text" class="form-control" placeholder="REPLY TEXT" id="newReplyText">
-            </div>
+            <c:if test="${not empty login }">
+	            <div class="box-body">
+	               <label for="exampleInputEmail1">Writer</label>
+	               <input type="text" class="form-control" value="${login.uid}" readonly id="newReplyWriter">
+	               
+	               <label for="exampleInputEmail1">Reply Text</label>
+	               <input type="text" class="form-control" placeholder="REPLY TEXT" id="newReplyText">
+	            </div>
+	            
+	            <div class="box-footer">
+	               <button type="submit" id="replyAddBtn">ADD REPLY</button>
+	            </div>
+            </c:if>
             
-            <div class="box-footer">
-               <button type="submit" id="replyAddBtn">ADD REPLY</button>
-            </div>
+            <c:if test="${empty login}">
+         		<div class="box-body">
+         			<div><a href="javascript:goLogin();">Login Please</a></div>
+         		</div>
+         	</c:if>
          </div>
+         
+         <c:if test="${empty login}">
+         	<div class="box-body">
+         		<div><a href="javascript:goLogin();">Login Please</a></div>
+         	</div>
+         </c:if>
          
          <ul class="timeline">
             <li class="time-label" id="repliesDiv">
